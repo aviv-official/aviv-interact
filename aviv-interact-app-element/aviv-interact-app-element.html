@@ -1,0 +1,48 @@
+
+<style>
+    @import "./telepathic-styles/telepathy.css";
+    /* contain CSS to the parent of this, speeds up calculations and helps with browsers that need to polyfill webcomponents 1x */
+    :host {
+            display: block;
+            contain: content;
+    }
+    .ready{
+            color: black;
+            background-color: yellow;
+            font-size: 1em;
+    }
+</style>
+<section class="paper">
+    ${statusMsg}
+    <div class="row">
+        <button id="connect-btn">Connect To Wallet</button>
+    </div>
+</section>
+
+<section class="paper" id="wallet-area" style="display: none;">
+    <div class="row">
+        <details>
+            <summary>Balances - Ethers: ${etherBal} | Estates: ${estateBal} | Teasury Rights: ${trBal} </summary>
+            <div class="row">
+                <details id="estate-area">
+                    <summary>Estates: ${estateBal} </summary>
+                    <details>
+                        <summary>Current Price: ${estatePrice}</summary>
+                        <section class="paper" id="purchase-area">
+                            Qty to purchase: <input id="qty-estates-fld" value=${estateQty}>&nbsp;&nbsp;<button id="purchase-btn">Purchase</button>
+                        </section>
+                    </details>
+                </details>
+            </div>
+            <div class="row">
+                <details id="tr-area">
+                    <summary>TR: ${trBal} </summary>
+                    <div id="tr-interact-area">
+                        Your own the following Estates<br>${tokenLinks}<br><br> 
+                        ${tokensAvailForMint} are available to mint up to ${trAvail} TRs.
+                    </div>
+                </div>
+            </div>
+        </details>
+    </div>
+</section>

@@ -1,0 +1,21 @@
+[submodule "js/telepathic-elements/telepathic-loader"]
+	path = js/telepathic-elements/telepathic-loader
+	url = https://github.com/telepathic-elements/telepathic-loader.git
+[submodule "js/telepathic-elements/telepathic-element"]
+	path = js/telepathic-elements/telepathic-element
+	url = https://github.com/telepathic-elements/telepathic-element.git
+[submodule "js/telepathic-elements/web3-service-loader"]
+	path = js/telepathic-elements/web3-service-loader
+	url = https://github.com/telepathic-elements/web3-service-loader.git
+[submodule "js/telepathic-elements/token-info-element"]
+	path = js/telepathic-elements/token-info-element
+	url = https://github.com/telepathic-elements/token-info-element.git
+[submodule "js/deployments"]
+	path = js/deployments
+	url = https://github.com/aviv-official/deployments.git
+[submodule "telepathic-elements/marked"]
+	path = telepathic-elements/marked
+	url = https://github.com/telepathic-elements/marked.git
+[submodule "telepathic-styles"]
+	path = telepathic-styles
+	url = https://github.com/telepathic-elements/telepathic-styles.git
