@@ -10,9 +10,6 @@
 [submodule "js/telepathic-elements/token-info-element"]
 	path = js/telepathic-elements/token-info-element
 	url = https://github.com/telepathic-elements/token-info-element.git
-[submodule "js/deployments"]
-	path = js/deployments
-	url = https://github.com/aviv-official/deployments.git
 [submodule "telepathic-elements/marked"]
 	path = telepathic-elements/marked
 	url = https://github.com/telepathic-elements/marked.git
