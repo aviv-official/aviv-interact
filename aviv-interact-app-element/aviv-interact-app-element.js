@@ -37,11 +37,11 @@ export default class AvivInteractAppElement extends TelepathicElement{
         console.debug("this.web3: ",this.web3);
     }
     async onReady(){
-        console.warn(`${this.constructor.name} entering onReady!`);
-        this.estateInfo = await this.loadFileJSON("./js/deployments/estate/estate.deployment.json");
-        this.estateABI = await this.loadFileJSON("./js/deployments/estate/estate.abi.json");
-        this.trInfo = await this.loadFileJSON("./js/deployments/tr/tr.deployment.json");
-        this.trABI = await this.loadFileJSON("./js/deployments/tr/tr.abi.json");
+        console.debug(`${this.constructor.name} entering onReady!`);
+        this.estateInfo = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/estate.deployment.json");
+        this.estateABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/estate.abi.json");
+        this.trInfo = await this.loadFileJSON("https://aviv-official.github.io/deployments/tr/tr.deployment.json");
+        this.trABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/tr/tr.abi.json");
         this.reset();
     }
 
