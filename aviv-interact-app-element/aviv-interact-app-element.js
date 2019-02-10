@@ -12,6 +12,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
         this.tokensOfOwner = [];
         this.tokenLinks = "";
         this.tokensAvailForMint = document.createElement("div");
+        this.estateAgents = document.createElement("table");
         this.trAvail = 0;
     }
 
@@ -63,6 +64,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
             this.statusMsg = "Account "+window.account;
             this.$.querySelector("#connect-btn").style.display = "none";
             this.$.querySelector("#wallet-area").style.display = "block";
+            this.$.querySelector("#manage-area").style.display = "block";
             this.$.querySelector("#purchase-btn").onclick = (evt) => {this.purchaseEstates();}
             web3.version.getNetwork(async (err, netId) => {
                 switch (netId) {
@@ -123,10 +125,42 @@ export default class AvivInteractAppElement extends TelepathicElement{
         let tokenLinks = "";
         console.debug("tokens held: ",this.tokensOfOwner);
         let tokensAvailForMint = document.createElement("div");
+        let estateAgents = document.createElement("table");
+        let thead = document.createElement("thead");
+        let th1 = document.createElement("th");
+        let th2 = document.createElement("th");
+        th1.innerHTML = "Estate ID";
+        th2.innerHTML = "Estate Agent";
+        thead.appendChild(th1);
+        thead.appendChild(th2);
+        estateAgents.appendChild(thead);
         this.trAvail = 0;
         for(let tokenId of this.tokensOfOwner){
-            tokenLinks += `<a href=https://rinkeby.etherscan.io/token/0x39cac5c49fbc5ab963bbad547e605ff7fed2ee1e?a=${tokenId}>${tokenId}</a>&nbsp`;
+            let link = `<a href=https://rinkeby.etherscan.io/token/0x39cac5c49fbc5ab963bbad547e605ff7fed2ee1e?a=${tokenId}>${tokenId}</a>&nbsp`;
+            tokenLinks += link;
             let amt = parseInt(await this.tr.methods.canMint(tokenId).call());
+            let agentAddr = await this.estate.methods.getAgent(tokenId).call();
+            let agentFld = document.createElement("input");
+            agentFld.value = agentAddr;
+            agentFld.name = tokenId;
+            agentFld.setAttribute("max-length",42);
+            agentFld.setAttribute("size",50);
+            agentFld.onchange = (evt)=>{
+                //console.debug(evt);
+                let el = evt.path[0];
+                let tokenId = el.name;
+                let agent = el.value;
+                console.debug(`Setting agent for token ${tokenId} to ${agent}`);
+                this.estate.methods.setAgent(tokenId,agent).send({from: window.account});
+            };
+            let row = document.createElement("tr");
+            let col1 = document.createElement("td");
+            let col2 = document.createElement("td");
+            col1.innerHTML = link;
+            col2.appendChild(agentFld);
+            row.appendChild(col1);
+            row.appendChild(col2);
+            estateAgents.appendChild(row);
             this.trAvail += amt;
             if(amt > 0){
                 let tokenBtn = document.createElement("button");
@@ -135,6 +169,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
                 tokensAvailForMint.appendChild(tokenBtn);
             }
         }
+        this.estateAgents = estateAgents;   
         this.tokenLinks = tokenLinks;
         this.tokensAvailForMint = tokensAvailForMint;
         console.debug("tokens for mint: ",this.tokensAvailForMint);
