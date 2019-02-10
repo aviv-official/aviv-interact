@@ -136,7 +136,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
         estateAgents.appendChild(thead);
         this.trAvail = 0;
         for(let tokenId of this.tokensOfOwner){
-            let link = `<a href=https://rinkeby.etherscan.io/token/0x39cac5c49fbc5ab963bbad547e605ff7fed2ee1e?a=${tokenId}>${tokenId}</a>&nbsp`;
+            let link = `<a href=https://rinkeby.etherscan.io/token/${this.estateInfo[window.network]}?a=${tokenId}>${tokenId}</a>&nbsp`;
             tokenLinks += link;
             let amt = parseInt(await this.tr.methods.canMint(tokenId).call());
             let agentAddr = await this.estate.methods.getAgent(tokenId).call();
