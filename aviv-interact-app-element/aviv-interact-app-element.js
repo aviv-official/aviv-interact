@@ -210,6 +210,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
         let funding = Math.ceil(this.estateQty * price);
         console.debug(`Sending ${funding} WEI with ${gas} GAS`);
         let txObject = {
+            from: window.account,
             gas: gas,
             value: funding,
             to: this.estateSaleInfo[window.network]
