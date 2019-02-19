@@ -9,6 +9,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
         this.estatePrice = 0;
         this.etherBal = 0;
         this.trBal = 0;
+        this.xavBal = 0;
         this.tokensOfOwner = [];
         this.tokenLinks = "";
         this.tokensAvailForMint = document.createElement("div");
@@ -30,7 +31,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
         }
         this.reset();
     }
-
+ 
     async init(){
         console.debug(`${this.constructor.name} entering init!`);
         let provider = window.web3.currentProvider ? window.web3.currentProvider : "wss://rinkeby.infura.io/ws";
@@ -43,6 +44,13 @@ export default class AvivInteractAppElement extends TelepathicElement{
         this.estateABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/estate.abi.json");
         this.trInfo = await this.loadFileJSON("https://aviv-official.github.io/deployments/tr/tr.deployment.json");
         this.trABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/tr/tr.abi.json");
+        this.elfInfo = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/elf.deployment.json");
+        this.elfABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/elf.abi.json");
+        this.estateSaleInfo = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/estate.sale.deployment.json");
+        this.estateSaleABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/estate/estate.sale.abi.json");
+        this.xavInfo = await this.loadFileJSON("https://aviv-official.github.io/deployments/xav/xav.deployment.json");
+        this.xavABI = await this.loadFileJSON("https://aviv-official.github.io/deployments/xav/xav.abi.json");
+
         this.reset();
     }
 
@@ -100,9 +108,14 @@ export default class AvivInteractAppElement extends TelepathicElement{
                 console.debug("estate: ", this.estate);
                 this.tr = await new this.web3.eth.Contract(this.trABI, this.trInfo[window.network],{from: window.account});
                 console.debug("tr: ", this.tr);
+                this.estateSale = await new this.web3.eth.Contract(this.estateSaleABI, this.estateSaleInfo[window.network],{from: window.account});
+                console.debug("estate sale: ",this.estateSale);
+                this.elf = await new this.web3.eth.Contract(this.elfABI, this.elfInfo[window.network],{from: window.account});
+                console.debug("elf: ", this.elf);
+                this.xav = await new this.web3.eth.Contract(this.xavABI, this.xavInfo[window.network],{from: window.account});
                 await this.balances();
                 this.estateQty = Math.floor(this.etherBal / this.estatePrice);
-                this.estateQty = this.estateQty > 10 ? 10 : this.estateQty;
+                this.estateQty = this.estateQty > 50 ? 50 : this.estateQty;
                 window.setInterval(()=>{this.balances()},60000);
               });     
         }
@@ -111,8 +124,9 @@ export default class AvivInteractAppElement extends TelepathicElement{
     async balances(){
         this.etherBal = this.web3.utils.fromWei(await this.web3.eth.getBalance(window.account),"ether");
         this.estateBal = await this.estate.methods.balanceOf(window.account).call();
-        this.estatePrice = this.web3.utils.fromWei(await this.estate.methods.tokenPrice().call(),"ether");
-        
+        this.estatePrice = this.web3.utils.fromWei(await this.estateSale.methods.getPrice().call(),"ether");
+        let xavBal = await this.xav.methods.balanceOf(window.account).call();
+        this.xavBal = xavBal * 10**-18;
         console.debug("estateBal: ",this.estateBal);
         console.debug("estate price: ",this.estatePrice);
         this.trBal = await this.tr.methods.balanceOf(window.account).call();
@@ -139,7 +153,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
             let link = `<a href=https://rinkeby.etherscan.io/token/${this.estateInfo[window.network]}?a=${tokenId}>${tokenId}</a>&nbsp`;
             tokenLinks += link;
             let amt = parseInt(await this.tr.methods.canMint(tokenId).call());
-            let agentAddr = await this.estate.methods.getAgent(tokenId).call();
+            let agentAddr = await this.elf.methods.getAgent(tokenId).call();
             let agentFld = document.createElement("input");
             agentFld.value = agentAddr;
             agentFld.name = tokenId;
@@ -151,7 +165,7 @@ export default class AvivInteractAppElement extends TelepathicElement{
                 let tokenId = el.name;
                 let agent = el.value;
                 console.debug(`Setting agent for token ${tokenId} to ${agent}`);
-                this.estate.methods.setAgent(tokenId,agent).send({from: window.account});
+                this.elf.methods.setAgent(tokenId,agent).send({from: window.account});
             };
             let row = document.createElement("tr");
             let col1 = document.createElement("td");
@@ -192,11 +206,15 @@ export default class AvivInteractAppElement extends TelepathicElement{
         
         gas = gas > limit ? limit : gas;
         
-        
-        let price = await this.estate.methods.tokenPrice().call();
+        let price = await this.estateSale.methods.getPrice().call();
         let funding = Math.ceil(this.estateQty * price);
-        console.debug(`Sending ${funding} WEI with ${gas} GAS`); 
-        let result = await this.estate.methods.issueToken(window.account).send({gas: gas,value: funding});
+        console.debug(`Sending ${funding} WEI with ${gas} GAS`);
+        let txObject = {
+            gas: gas,
+            value: funding,
+            to: this.estateSaleInfo[window.network]
+        } 
+        let result = await this.web3.eth.sendTransaction(txObject);
         console.debug("result of purchase: ",result);
         await this.balances();
     }
